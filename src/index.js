@@ -1,23 +1,34 @@
-// Demo component
-// this is only example component
-// you can find tests in __test__ folder
+import React from 'react'
+let AnalyticsClient
+const DefaultOnSSR = () => (<span></span>)
 
-import React from 'react';
+class Analytics extends React.Component { 
 
-class MyComponent extends React.Component {
-    componentDidMount() {
-        // some logic here - we only test if the method is called
+  constructor(...args) {
+    super(...args)
+    this.state = {
+      canRender: false
     }
-    render() {
-        return (
-            <div className="my-component">
-                <i className="icon-test"></i>
-                <i className="icon-test"></i>
-                <i className="icon-test"></i>
-                <button onClick={this.props.handleClick} type="button"></button>
-            </div>
-        )
-    }
-};
+  }
 
-export default MyComponent;
+  componentDidMount() {
+    this.setState({canRender: true})
+    if(window && !AnalyticsClient) {
+      AnalyticsClient = require('./lib/segment')
+      analytics.load(this.props.analytics_key)
+      analytics.page()
+    } else {
+      analytics.load(this.props.analytics_key)
+      analytics.page()
+    }
+  }
+
+  render() {
+    const { children, onSSR = <DefaultOnSSR /> } = this.props
+    const { canRender } = this.state
+
+    return canRender ? children : onSSR
+  }
+}
+
+export default Analytics
